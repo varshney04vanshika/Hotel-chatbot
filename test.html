@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Hotel Chatbot Test</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #111;
+            color: white;
+        }
+
+        .chat-container {
+            width: 350px;
+            height: 500px;
+            margin: 50px auto;
+            background: black;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .header {
+            background: #ffcd00;
+            color: black;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: #0c206e;
+            color: white;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: #e4e7ff;
+            color: black;
+        }
+
+        .input-area {
+            display: flex;
+            border-top: 1px solid #333;
+        }
+
+        #input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+
+        #send {
+            background: #ffcd00;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <div class="header">HotelBot Test</div>
+
+        <div id="chatbox"></div>
+
+        <div class="input-area">
+            <input type="text" id="input" placeholder="Type message..."
+                onkeypress="if(event.key==='Enter') sendMessage()">
+            <button id="send" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let started = false;
+
+        function appendMessage(text, type) {
+            const msg = document.createElement("div");
+            msg.classList.add("message", type);
+            msg.innerText = text;
+            document.getElementById("chatbox").appendChild(msg);
+        }
+
+        function startBot() {
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "" })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    appendMessage(data.response, "bot");
+                });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            appendMessage(message, "user");
+            input.value = "";
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    appendMessage(data.response, "bot");
+                    const chatbox = document.getElementById("chatbox");
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
+        }
+
+        window.onload = startBot;
+    </script>
+
+</body>
+
+</html>

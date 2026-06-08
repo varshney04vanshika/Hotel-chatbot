@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="logo"><a><img width="50" height="50" src="img.png" alt="Logo"></a></div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="login.html">Login</a>
+        </div>
+    </div>
+
+    <div class="login-form">
+        <h1>Login</h1>
+        <input type="text" placeholder="Username">
+        <input type="password" placeholder="Password">
+        <button>Login</button>
+    </div>
+
+    <!-- Chat widget -->
+    <div id="chat-widget">
+        <div id="chat-header">HotelBot</div>
+        <div id="chat-messages"></div>
+        <div id="chat-input">
+            <select id="city">
+                <option>Delhi</option>
+                <option>Bengaluru</option>
+                <option>Chennai</option>
+                <option>Mumbai</option>
+                <option>Ahmedabad</option>
+            </select>
+            <select id="branch">
+                <option>Hauz Khas</option>
+                <option>Aerocity</option>
+                <option>Lavelle Road</option>
+                <option>Kora Mangala</option>
+                <option>Pose Garden</option>
+                <option>Marine Drive</option>
+                <option>Bandra</option>
+                <option>Sindhur Bhawan Road</option>
+            </select>
+            <input type="text" id="chat-text" placeholder="Type your message..."
+                onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function startChat() {
+            document.getElementById("chat-widget").style.display = "flex";
+        }
+
+        function appendMessage(sender, text) {
+            const chatBox = document.getElementById("chat-messages");
+            const msg = document.createElement("div");
+            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("chat-text");
+            const message = input.value.trim();
+            const city = document.getElementById("city").value;
+            const branch = document.getElementById("branch").value;
+            if (!message) return;
+
+            appendMessage("You", message);
+            input.value = "";
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ city: city, branch: branch, message: message })
+            });
+            const data = await response.json();
+            appendMessage("Bot", data.response);
+        }
+    </script>
+</body>
+
+</html>
